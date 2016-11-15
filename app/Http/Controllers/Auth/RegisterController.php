@@ -1,8 +1,11 @@
 <?php
-
 namespace App\Http\Controllers\Auth;
 
-use App\User;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Request;
+use App\Models\User;
+use App\Repositories\UserProfileRepository;
+use App\Repositories\UserRepository;
 use Validator;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -19,7 +22,6 @@ class RegisterController extends Controller
     | provide this functionality without requiring any additional code.
     |
     */
-
     use RegistersUsers;
 
     /**
@@ -29,27 +31,31 @@ class RegisterController extends Controller
      */
     protected $redirectTo = '/home';
 
+    protected $userProfileRepository;
+
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(UserProfileRepository $userProfileRepository)
     {
+        $this->userProfileRepository = $userProfileRepository;
         $this->middleware('guest');
     }
 
     /**
      * Get a validator for an incoming registration request.
      *
-     * @param  array  $data
+     * @param  array $data
+     *
      * @return \Illuminate\Contracts\Validation\Validator
      */
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'name' => 'required|max:255',
-            'email' => 'required|email|max:255|unique:users',
+            'name'     => 'required|max:255',
+            'email'    => 'required|email|max:255|unique:users',
             'password' => 'required|min:6|confirmed',
         ]);
     }
@@ -57,15 +63,24 @@ class RegisterController extends Controller
     /**
      * Create a new user instance after a valid registration.
      *
-     * @param  array  $data
+     * @param  array $data
+     *
      * @return User
      */
     protected function create(array $data)
     {
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
+        $user = User::create([
+            'name'     => $data[ 'name' ],
+            'email'    => $data[ 'email' ],
+            'password' => bcrypt($data[ 'password' ]),
         ]);
+        $this->storeProfile($user);
+
+        return $user;
+    }
+
+    protected function storeProfile($user)
+    {
+        $this->userProfileRepository->storeProfile($user);
     }
 }
