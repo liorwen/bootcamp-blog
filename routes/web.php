@@ -11,10 +11,22 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+//Route::get('/', function () {
+//    return view('welcome');
+//});
+//
+//Auth::routes();
+//
+//Route::get('/home', 'HomeController@index');
+//
+//
+//Route::get('/signup', function () {
+//    return view('auth/sign-up');
+//});
+//Route::get('/signin', function () {
+//    return view('auth/sign-in');
+//});
+
+Route::get('/{vue_capture?}', function () {
+    return view('frontend.app');
 });
-
-Auth::routes();
-
-Route::get('/home', 'HomeController@index');
