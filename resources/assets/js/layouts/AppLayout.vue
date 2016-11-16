@@ -22,8 +22,8 @@
 
                     <!-- Right Side Of Navbar -->
                     <ul class="nav navbar-nav navbar-right">
-                        <li v-if="!auth.user.authenticated"><router-link to="/signin">Login</router-link></li>
-                        <li v-if="!auth.user.authenticated"><router-link to="/signup">Register</router-link></li>
+                        <li v-if="!auth.user.authenticated"><router-link to="signin">Login</router-link></li>
+                        <li v-if="!auth.user.authenticated"><router-link to="signup">Register</router-link></li>
                         <li class="dropdown" v-if="auth.user.authenticated">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
                                 {{ auth.user.profile.name }} <span class="caret"></span>
@@ -57,8 +57,8 @@
                 auth.signout()
             }
         },
-        ready() {
-            auth.check()
+        mounted() {
+            auth.checkauth(this)
         }
     }
 

@@ -8,11 +8,13 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\IdTokenRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Repositories\AuthRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
@@ -67,6 +69,41 @@ class AuthController extends Controller
                 'data' => $data,
                 'meta' => $meta,
             ]);
+        }
+    }
+
+    public function checkAuth(IdTokenRequest $request)
+    {
+        try {
+            $token = JWTAuth::getToken();
+        } catch (JWTException $e) {
+            return response()->json([
+                'error' => 'Could not authenticate',
+            ], 500);
+        }
+        if (!$token) {
+            return response()->json([
+                'error' => 'Could not authenticate',
+            ], 401);
+        } else {
+            if ($token == $request['id_token'])
+            {
+                $data = [];
+                $meta = [];
+                $user = JWTAuth::parseToken()->authenticate();
+                $data[ 'name' ] = $user->name;
+                $meta[ 'token' ] = $token;
+
+                return response()->json([
+                    'data' => $data,
+                    'meta' => $meta,
+                ]);
+            }
+            else {
+                return response()->json([
+                    'error' => 'Could not authenticate',
+                ], 401);
+            }
         }
     }
 }

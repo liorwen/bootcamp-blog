@@ -1,7 +1,7 @@
 /**
  * Created by liorwen on 2016/11/16.
  */
-import {router} from "../app.js";
+
 export default {
     user: {
         authenticated: false,
@@ -35,23 +35,38 @@ export default {
             localStorage.setItem('id_token', response.data.meta.token)
             Vue.http.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
 
-            this.user.authenticated = true
-            this.user.profile = response.data.data
-            // $route.params.username = this.user.profile.name;
-            router.push({
-                name: 'home'
-            })
+            this.user.authenticated = true;
+            this.user.profile = response.data.data;
+
+            router.push('home');
         }, (response) => {
-            context.error = true
+            context.error = true;
         })
     },
     signout() {
-        localStorage.removeItem('id_token')
-        this.user.authenticated = false
-        this.user.profile = null
+        localStorage.removeItem('id_token');
+        this.user.authenticated = false;
+        this.user.profile = null;
 
-        router.push({
-            name: 'signin'
+        router.push('signin');
+    },
+    checkauth(context) {
+        console.log('check auth');
+        Vue.http.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
+
+        Vue.http.post(
+            'api/auth/check-auth',
+            {
+                id_token: localStorage.getItem('id_token')
+            }
+        ).then(response => {
+            context.error = false;
+            this.user.authenticated = true;
+            this.user.profile = response.data.data;
+
+
+        }, (response) => {
+            context.error = true
         })
     }
 }

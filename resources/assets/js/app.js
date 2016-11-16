@@ -28,7 +28,7 @@ import SignIn from './components/SignIn.vue';
 
 Vue.use(VueRouter);
 
-export const router = new VueRouter({
+const router = new VueRouter({
     mode: 'history',
     base: __dirname,
     routes: [
@@ -38,4 +38,5 @@ export const router = new VueRouter({
 
     ]
 });
+window.router = router;
 new Vue(Vue.util.extend({router}, App)).$mount('#app');
