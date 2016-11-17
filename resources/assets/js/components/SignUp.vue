@@ -62,7 +62,7 @@
     </div>
 </template>
 <script>
-    import auth from '../apis/authApi.js';
+    import auth from '../apis/AuthService.js';
     export default{
         data(){
             return{
@@ -78,10 +78,28 @@
         methods: {
             register(event) {
                 event.preventDefault()
-                auth.register(this, this.name, this.email, this.password, this.password_confirmation)
+                let vm = this;
+                auth.register(this.name, this.email, this.password, this.password_confirmation, function(response){
+                    vm.response = response.data;
+                    vm.success = response.success;
+                    vm.error = response.error;
+                    if(vm.success) {
+                        auth.signin(vm.email, vm.password, function(response){
+                            console.log(response);
+                            if(response.success)
+                            {
+                                store.commit('authState', response.data.authenticated);
+                                store.commit('usernameChange', response.data.profile.name);
+
+                            }
+                        })
+                        router.push('home');
+                    }
+                })
             }
         }
     }
+
 
 
 </script>

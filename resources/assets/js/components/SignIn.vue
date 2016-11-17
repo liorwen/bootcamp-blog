@@ -35,7 +35,7 @@
     </div>
 </template>
 <script>
-    import auth from '../apis/authApi.js';
+    import auth from '../apis/AuthService.js';
     export default{
         data(){
             return{
@@ -47,7 +47,15 @@
         methods: {
             signin(event) {
                 event.preventDefault()
-                auth.signin(this, this.email, this.password)
+                auth.signin(this.email, this.password, function(response){
+                    console.log(response);
+                    if(response.success)
+                    {
+                        store.commit('authState', response.data.authenticated);
+                        store.commit('usernameChange', response.data.profile.name);
+                        router.push('home');
+                    }
+                })
             }
         }
     }

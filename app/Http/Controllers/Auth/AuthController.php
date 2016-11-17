@@ -101,7 +101,7 @@ class AuthController extends Controller
             }
             else {
                 return response()->json([
-                    'error' => 'Could not authenticate',
+                    'error' => 'Token invaild',
                 ], 401);
             }
         }

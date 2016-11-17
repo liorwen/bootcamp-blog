@@ -18,6 +18,7 @@ export default {
             }
         ).then(response => {
             context.success = true
+            this.signin(context, email, password);
         }, (response) => {
             context.response = response.data
             context.error = true
@@ -52,6 +53,11 @@ export default {
     },
     checkauth(context) {
         console.log('check auth');
+        let id_token = localStorage.getItem('id_token');
+
+        if(!id_token) {
+            return;
+        }
         Vue.http.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
 
         Vue.http.post(
@@ -67,6 +73,39 @@ export default {
 
         }, (response) => {
             context.error = true
+        })
+    },
+    checkauth2(callback)
+    {
+        let id_token = localStorage.getItem('id_token');
+        let returnData = {success: false, error: false, msg:"", data: null};
+        if(!id_token) {
+            returnData.error = true;
+            returnData.msg = "id_token has not yet";
+            callback(returnData);
+            return;
+        }
+        Vue.http.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token')
+
+        Vue.http.post(
+            'api/auth/check-auth',
+            {
+                id_token: localStorage.getItem('id_token')
+            }
+        ).then(response => {
+            returnData.success = true;
+            returnData.msg = "auth valid";
+            returnData.data = {
+                authenticated: true,
+                profile: response.data.data};
+            callback(returnData);
+
+        }, (response) => {
+            returnData.error = true;
+            returnData.msg = "auth invalid";
+
+            callback(returnData);
+
         })
     }
 }

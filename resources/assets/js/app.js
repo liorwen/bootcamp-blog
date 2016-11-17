@@ -8,10 +8,12 @@
 require('./bootstrap');
 
 import VueRouter from "vue-router";
+import Vuex from 'vuex';
 import App from './layouts/AppLayout.vue';
 import Dashboard from './components/Dashboard.vue';
 import SignUp from './components/SignUp.vue';
 import SignIn from './components/SignIn.vue';
+import middleware from './apis/middleware.js';
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the body of the page. From here, you may begin adding components to
@@ -27,16 +29,37 @@ import SignIn from './components/SignIn.vue';
 // });
 
 Vue.use(VueRouter);
+Vue.use(Vuex);
+
+
+const store = new Vuex.Store({
+    state: {
+        name: "",
+        authenticated: false
+    },
+    mutations: {
+        authState: (state, isAuth) => {
+            state.authenticated = isAuth;
+        },
+        usernameChange:
+        (state, name) => {
+            state.name = name;
+        }
+    }
+})
+
 
 const router = new VueRouter({
     mode: 'history',
     base: __dirname,
+    linkActiveClass: 'active',
     routes: [
-        { path: '/home', component: Dashboard },
-        { path: '/signup', component: SignUp },
-        { path: '/signin', component: SignIn },
+        { path: '/signup', component: SignUp, beforeEnter: middleware.auth },
+        { path: '/signin', component: SignIn, beforeEnter: middleware.auth },
+        { path: '/:username', component: Dashboard },
 
     ]
 });
 window.router = router;
+window.store = store;
 new Vue(Vue.util.extend({router}, App)).$mount('#app');

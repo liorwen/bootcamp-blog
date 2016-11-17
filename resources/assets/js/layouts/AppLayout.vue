@@ -13,7 +13,7 @@
 
                     <!-- Branding Image -->
                     <a class="navbar-brand" href="/">
-                        Laravel
+                        Bootcamo-Blog
                     </a>
                 </div>
                 <div class="collapse navbar-collapse" id="app-navbar-collapse">
@@ -22,11 +22,11 @@
 
                     <!-- Right Side Of Navbar -->
                     <ul class="nav navbar-nav navbar-right">
-                        <li v-if="!auth.user.authenticated"><router-link to="signin">Login</router-link></li>
-                        <li v-if="!auth.user.authenticated"><router-link to="signup">Register</router-link></li>
-                        <li class="dropdown" v-if="auth.user.authenticated">
+                        <li v-if="!authenticated"><router-link to="signin">Login</router-link></li>
+                        <li v-if="!authenticated"><router-link to="signup">Register</router-link></li>
+                        <li class="dropdown" v-if="authenticated">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                                {{ auth.user.profile.name }} <span class="caret"></span>
+                                {{ username }} <span class="caret"></span>
                             </a>
 
                             <ul class="dropdown-menu" role="menu">
@@ -44,24 +44,50 @@
     </div>
 </template>
 <script>
-    import auth from '../apis/authApi.js';
-
+ //   import auth from '../apis/authApi.js';
+    import auth2 from '../apis/AuthService.js';
     export default{
         data(){
             return{
-                auth: auth
+   //             auth: auth,
+          //      auth2: {
+           //       authenticated: store.state.authenticated,
+            //      name: store.state.name;
+             //   },
+                error: false
             }
         },
         methods: {
             signout() {
-                auth.signout()
-            }
+                auth2.signout(function(response) {
+                   // vm.auth2.name = "";
+                   // vm.auth2.authenticated = false;
+                    store.commit('authState', false);
+                    store.commit('usernameChange', "");
+                    router.push('signin');
+                })
+
+            },
         },
         mounted() {
-            auth.checkauth(this)
+            let vm = this;
+            auth2.check(function(response) {
+                if(response.success)
+                {
+                    //vm.auth2.name = response.data.profile.name;
+                    //vm.auth2.authenticated = response.data.authenticated;
+                    store.commit('authState', response.data.authenticated);
+                    store.commit('usernameChange', response.data.profile.name);
+                }
+            })
+        },
+        computed: {
+            username() {
+                return store.state.name;
+            },
+            authenticated() {
+                return store.state.authenticated;
+            }
         }
     }
-
-
-
 </script>
